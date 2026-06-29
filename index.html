@@ -167,7 +167,16 @@ function parseInput(){
   const[y,m]=currentMonth.split('-').map(Number);
   const alerts=[]; parsedGroups=[];
   let curDate=null,curRows=[],curInputTotal=null;
-  const flush=()=>{if(curDate&&curRows.length>0)parsedGroups.push({date:curDate,rows:curRows,inputTotal:curInputTotal});curRows=[];curInputTotal=null;};
+  const flush=()=>{
+    if(!curDate) return;
+    // Ngày trống (không có dòng nào) → thêm 1 dòng placeholder x
+    if(curRows.length===0){
+      const day=parseInt(curDate.split('-')[2]);
+      curRows=[{date:curDate,userName:'x',memberName:'x',kpi:0,rawKpi:'0',week:getWeek(day),isEmpty:true}];
+    }
+    parsedGroups.push({date:curDate,rows:curRows,inputTotal:curInputTotal});
+    curRows=[];curInputTotal=null;
+  };
   for(const line of raw.split('\n')){
     const t=line.trim();if(!t)continue;
     const dm=t.match(/^[Nn]g[àa]y\s+(\d{1,2})[-\/](\d{1,2})(?:[-\/]\d{2,4})?/);
@@ -176,22 +185,30 @@ function parseInput(){
       curDate=`${y}-${String(m).padStart(2,'0')}-${String(day).padStart(2,'0')}`;continue;}
     const tm=t.match(/^[Tt][oổ]ng\s+([\d,\.]+)/);
     if(tm){curInputTotal=parseInt(tm[1].replace(/[,\.]/g,''));continue;}
-    const dm2=t.match(/^(\d+)[\.\)]\s*(.+?)\s*\(([^)]+)\)\s*([\d\s\+]+)\s*$/);
+    // Chấp nhận: "1. Name", "1) Name", "1 Name" (có hoặc không có dấu chấm/ngoặc sau số)
+    const dm2=t.match(/^(\d+)[\.)\s]\s*(.+?)\s*\(([^)]+)\)\s*([\d\s\+]+)\s*$/);
     if(dm2){
       if(!curDate){alerts.push({type:'warn',msg:`⚠️ Dòng "${t.substring(0,30)}" không có ngày, bỏ qua.`});continue;}
       const userName=dm2[2].trim(),memberName=dm2[3].trim(),rawKpi=dm2[4].trim();
       const kpi=rawKpi.split(/\s*\+\s*/).reduce((s,v)=>s+(parseInt(v)||0),0);
       curRows.push({date:curDate,userName,memberName,kpi,rawKpi,week:getWeek(parseInt(curDate.split('-')[2]))});continue;}
-    if(/^\d+[\.\)]\s/.test(t))alerts.push({type:'danger',msg:`❌ Không đọc được: ${t}`});
+    if(/^\d+[\.)\s]\s*\S+.*\(/.test(t))alerts.push({type:'danger',msg:`❌ Không đọc được: ${t}`});
   }
   flush();
   if(!parsedGroups.length){showSingleAlert('Không tìm thấy dữ liệu hợp lệ.','danger');return;}
   parsedGroups.forEach(g=>{
-    const calc=g.rows.reduce((s,r)=>s+r.kpi,0),[,,d]=g.date.split('-');
+    const[,,d]=g.date.split('-');
+    if(g.rows[0]?.isEmpty){
+      alerts.push({type:'warn',msg:`📭 Ngày ${d}: Không có dữ liệu — sẽ ghi 0.`});
+      return;
+    }
+    const calc=g.rows.reduce((s,r)=>s+r.kpi,0);
     if(g.inputTotal!==null&&calc!==g.inputTotal)alerts.push({type:'warn',msg:`⚠️ Ngày ${d}: Tổng input ${fmt(g.inputTotal)} ≠ tính được ${fmt(calc)}`});
     if(reportData[g.date])alerts.push({type:'warn',msg:`🔄 Ngày ${d} đã có dữ liệu — sẽ ghi đè.`});
   });
-  alerts.unshift({type:'success',msg:`✅ Đọc được ${parsedGroups.length} ngày, ${parsedGroups.reduce((s,g)=>s+g.rows.length,0)} dòng.`});
+  const realDays=parsedGroups.filter(g=>!g.rows[0]?.isEmpty).length;
+  const totalRows=parsedGroups.reduce((s,g)=>s+(g.rows[0]?.isEmpty?0:g.rows.length),0);
+  alerts.unshift({type:'success',msg:`✅ Đọc được ${parsedGroups.length} ngày (${realDays} có dữ liệu), ${totalRows} dòng.`});
   renderAlerts(alerts); renderPreview(parsedGroups);
   document.getElementById('btnAdd').disabled=false;
 }
@@ -202,7 +219,15 @@ function renderPreview(groups){
   const[,m]=currentMonth.split('-');
   let html='';
   groups.forEach(g=>{
+    const isEmpty=g.rows[0]?.isEmpty;
     const dayTotal=g.rows.reduce((s,r)=>s+r.kpi,0),[y,,d]=g.date.split('-'),isOvr=!!reportData[g.date];
+    if(isEmpty){
+      html+=`<div class="section-title">Ngày ${d}/${m}/${y} — <span style="color:var(--text3)">Trống (tổng = 0)</span>${isOvr?'<span class="overwrite-badge">🔄 GHI ĐÈ</span>':''}</div>
+      <table><thead><tr><th>Tên User</th><th>Thành viên</th><th style="text-align:right">KPI Ngày</th></tr></thead><tbody>
+      <tr style="color:var(--text3)"><td>x</td><td>x</td><td class="num">0</td></tr>
+      </tbody></table>`;
+      return;
+    }
     html+=`<div class="section-title">Ngày ${d}/${m}/${y} — ${g.rows.length} dòng — Tổng: <strong>${fmt(dayTotal)}</strong>${isOvr?'<span class="overwrite-badge">🔄 GHI ĐÈ</span>':''}</div>
     <table><thead><tr><th>Tên User</th><th>Thành viên</th><th style="text-align:right">KPI Ngày</th></tr></thead><tbody>`;
     g.rows.forEach(r=>{html+=`<tr><td>${r.userName}</td><td class="member">${r.memberName}</td>

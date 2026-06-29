@@ -148,7 +148,8 @@ def build_from_template(report_data, year_month):
             # Clone style từ dòng mẫu (row 3) của template
             copy_row_style(ws_tpl, 3, ws, current_row, NUM_COLS)
 
-            # Điền giá trị vào từng cột
+            is_empty_day = r.get('isEmpty', False)
+
             # A: Ngày — chỉ dòng đầu của ngày
             c = ws.cell(row=current_row, column=1)
             if i == 0:
@@ -157,20 +158,29 @@ def build_from_template(report_data, year_month):
             else:
                 c.value = ''
 
-            # B: User name
-            ws.cell(row=current_row, column=2).value = r['userName']
-            # C: Member
-            ws.cell(row=current_row, column=3).value = r['memberName']
-            # D: KPI ngày
-            c = ws.cell(row=current_row, column=4)
-            c.value = r['kpi']
-            c.number_format = '#,##0'
+            if is_empty_day:
+                # Ngày trống: ghi x vào user, member, KPI — tổng = 0
+                ws.cell(row=current_row, column=2).value = 'x'
+                ws.cell(row=current_row, column=3).value = 'x'
+                c = ws.cell(row=current_row, column=4)
+                c.value = 'x'
+            else:
+                # B: User name
+                ws.cell(row=current_row, column=2).value = r['userName']
+                # C: Member
+                ws.cell(row=current_row, column=3).value = r['memberName']
+                # D: KPI ngày
+                c = ws.cell(row=current_row, column=4)
+                c.value = r['kpi']
+                c.number_format = '#,##0'
+
             # E-G: trống (style đã copy)
             # H: x
             ws.cell(row=current_row, column=8).value = 'x'
             # I: KPI tổng ngày — chỉ dòng đầu, để trống còn lại
             c = ws.cell(row=current_row, column=9)
-            c.value = sum(rr['kpi'] for rr in rows) if i == 0 else ''
+            day_kpi_total = sum(rr['kpi'] for rr in rows)
+            c.value = day_kpi_total if i == 0 else ''
             if i == 0: c.number_format = '#,##0'
             # J: KPI tổng tuần — để trống trước, set sau khi biết first row tuần
             ws.cell(row=current_row, column=10).value = ''
