@@ -1,141 +1,742 @@
 <!DOCTYPE html>
-<html lang="vi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- saved from url=(0048)file:///C:/Users/congtinh/Downloads/index_2.html -->
+<html lang="vi"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Báo Số KPI</title>
 <style>
-  :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#222636;--border:#2d3147;--accent:#6c8fff;--accent2:#4ecdc4;--success:#43c98c;--warn:#f5a623;--danger:#ff5c6a;--text:#e8eaf0;--text2:#8b90a7;--text3:#555c7a;}
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;min-height:100vh;}
-  .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;}
-  .logo{font-size:18px;font-weight:700;color:var(--accent);letter-spacing:-.5px;flex-shrink:0;}.logo span{color:var(--accent2);}
-  .topbar-center{flex:1;display:flex;align-items:center;gap:12px;}
-  .lbl{color:var(--text2);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
-  input[type=month]{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 12px;border-radius:7px;font-size:14px;outline:none;cursor:pointer;}
-  input[type=month]:focus{border-color:var(--accent);}
-  .topbar-right{display:flex;gap:8px;align-items:center;}
-  .btn{padding:8px 16px;border-radius:7px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px;white-space:nowrap;}
-  .btn-primary{background:var(--accent);color:#fff;}.btn-primary:hover{background:#5577ee;}
-  .btn-success{background:var(--success);color:#fff;}.btn-success:hover{background:#38b07a;}
-  .btn-danger{background:transparent;border:1px solid var(--danger);color:var(--danger);}.btn-danger:hover{background:var(--danger);color:#fff;}
-  .btn-ghost{background:var(--surface2);border:1px solid var(--border);color:var(--text2);}.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
-  .btn:disabled{opacity:.4;cursor:not-allowed;}
-  .spinner-btn{display:none;align-items:center;gap:8px;}
-  .spinner{width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;}
-  @keyframes spin{to{transform:rotate(360deg);}}
-  .summary-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;gap:24px;align-items:center;flex-wrap:wrap;}
-  .sum-item{display:flex;flex-direction:column;gap:2px;}
-  .sum-label{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);font-weight:700;}
-  .sum-val{font-size:15px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;}
-  .sum-val.accent{color:var(--accent);}.sum-val.success{color:var(--success);}
-  .sum-div{width:1px;height:32px;background:var(--border);}
-  .main{display:grid;grid-template-columns:220px 1fr;height:calc(100vh - 97px);overflow:hidden;}
-  .sidebar{background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:12px 0;}
-  .sidebar::-webkit-scrollbar{width:4px;}.sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
-  .week-header{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--accent2);font-weight:700;padding:10px 16px 4px;border-top:1px solid var(--border);margin-top:4px;}
-  .week-header:first-child{border-top:none;margin-top:0;}
-  .day-item{display:flex;align-items:center;justify-content:space-between;padding:7px 16px;cursor:pointer;transition:background .1s;gap:8px;}
-  .day-item:hover{background:var(--surface2);}.day-item.active{background:rgba(108,143,255,.12);border-right:2px solid var(--accent);}
-  .day-label{font-size:13px;font-weight:600;color:var(--text);}
-  .day-kpi{font-size:11px;color:var(--success);font-weight:700;font-variant-numeric:tabular-nums;}
-  .day-empty{font-size:11px;color:var(--text3);}
-  .day-del{font-size:10px;color:var(--danger);cursor:pointer;padding:2px 5px;border-radius:4px;opacity:0;transition:opacity .1s;background:rgba(255,92,106,.1);}
-  .day-item:hover .day-del{opacity:1;}
-  .right-panel{display:flex;flex-direction:column;overflow:hidden;}
-  .tabs{display:flex;gap:2px;padding:12px 20px 0;border-bottom:1px solid var(--border);flex-shrink:0;}
-  .tab{padding:8px 16px;font-size:13px;font-weight:600;color:var(--text2);border-radius:7px 7px 0 0;cursor:pointer;border:1px solid transparent;border-bottom:none;}
-  .tab.active{background:var(--surface2);border-color:var(--border);color:var(--text);border-bottom:1px solid var(--surface2);margin-bottom:-1px;}
-  .tab:hover:not(.active){color:var(--text);}
-  .input-area{padding:16px 20px;border-bottom:1px solid var(--border);background:var(--surface2);flex-shrink:0;}
-  .input-row{display:flex;gap:10px;align-items:flex-end;}
-  textarea{flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:10px 14px;font-size:13px;font-family:'Cascadia Code','Fira Code',monospace;resize:vertical;min-height:120px;outline:none;line-height:1.6;}
-  textarea:focus{border-color:var(--accent);}textarea::placeholder{color:var(--text3);}
-  .input-actions{display:flex;flex-direction:column;gap:8px;flex-shrink:0;}
-  .input-hint{font-size:11px;color:var(--text3);margin-top:6px;}
-  .alerts{padding:0 20px;flex-shrink:0;max-height:120px;overflow-y:auto;}
-  .alert{margin-top:6px;padding:7px 12px;border-radius:7px;font-size:12px;line-height:1.5;}
-  .alert-warn{background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.3);color:var(--warn);}
-  .alert-danger{background:rgba(255,92,106,.1);border:1px solid rgba(255,92,106,.25);color:var(--danger);}
-  .alert-success{background:rgba(67,201,140,.1);border:1px solid rgba(67,201,140,.25);color:var(--success);}
-  .preview-area,.report-view{flex:1;overflow:auto;padding:16px 20px;}
-  .preview-area::-webkit-scrollbar,.report-view::-webkit-scrollbar{width:5px;height:5px;}
-  .preview-area::-webkit-scrollbar-thumb,.report-view::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
-  .section-title{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);font-weight:700;margin-bottom:10px;margin-top:16px;}
-  .section-title:first-child{margin-top:0;}
-  table{width:100%;border-collapse:collapse;font-size:13px;}
-  th{background:var(--surface);color:var(--text2);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.3px;padding:9px 10px;text-align:left;border-bottom:2px solid var(--border);position:sticky;top:0;z-index:2;white-space:nowrap;}
-  td{padding:7px 10px;border-bottom:1px solid rgba(45,49,71,.6);color:var(--text);}
-  tr:hover td{background:rgba(255,255,255,.02);}
-  td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;}
-  td.date-cell{color:var(--accent2);font-weight:700;white-space:nowrap;}
-  td.member{color:var(--accent);}
-  td.tot-day{color:var(--success);font-weight:700;text-align:right;font-variant-numeric:tabular-nums;}
-  td.tot-week{color:var(--warn);font-weight:700;text-align:right;font-variant-numeric:tabular-nums;}
-  .raw-kpi{font-size:11px;color:var(--text3);}
-  tr.day-first td{background:rgba(108,143,255,.03);}
-  tr.week-boundary td{border-top:2px solid rgba(78,205,196,.25);}
-  tr.footer-row td{background:var(--surface);font-weight:700;border-top:2px solid var(--border);}
-  .empty-state{text-align:center;padding:60px 20px;color:var(--text3);}
-  .empty-state .icon{font-size:48px;margin-bottom:12px;}
-  .empty-state p{font-size:14px;}
-  .overwrite-badge{display:inline-flex;align-items:center;background:rgba(245,166,35,.15);color:var(--warn);font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;margin-left:6px;}
+:root{
+  --bg:#0f1117;--surface:#1a1d27;--surface2:#222636;--border:#2d3147;
+  --accent:#6c8fff;--accent2:#4ecdc4;--success:#43c98c;
+  --warn:#f5a623;--danger:#ff5c6a;--text:#e8eaf0;--text2:#8b90a7;--text3:#555c7a;
+  --topbar-h:56px;--sumbar-h:52px;--navbar-h:56px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;min-height:100vh;overflow:hidden;}
+
+/* ══ TOPBAR ══════════════════════════════════════════ */
+.topbar{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:0 16px;height:var(--topbar-h);
+  display:flex;align-items:center;gap:10px;
+  position:fixed;top:0;left:0;right:0;z-index:200;
+}
+.logo{font-size:17px;font-weight:800;color:var(--accent);letter-spacing:-.5px;flex-shrink:0;}
+.logo span{color:var(--accent2);}
+.topbar-month{flex:1;display:flex;align-items:center;gap:8px;}
+.lbl{color:var(--text2);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;}
+input[type=month]{
+  background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  padding:6px 10px;border-radius:8px;font-size:14px;outline:none;
+  width:100%;max-width:160px;
+}
+input[type=month]:focus{border-color:var(--accent);}
+.topbar-actions{display:flex;gap:6px;align-items:center;flex-shrink:0;}
+.btn{
+  padding:8px 14px;border-radius:8px;border:none;font-size:13px;font-weight:600;
+  cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px;
+  white-space:nowrap;min-height:38px;
+}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-success{background:var(--success);color:#fff;}
+.btn-danger{background:transparent;border:1px solid var(--danger);color:var(--danger);}
+.btn-ghost{background:var(--surface2);border:1px solid var(--border);color:var(--text2);}
+.btn:active{opacity:.8;transform:scale(.97);}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+/* Icon-only on mobile */
+.btn-label{display:inline;}
+.btn-icon{display:none;}
+
+/* ══ SUMMARY BAR ═════════════════════════════════════ */
+.summary-bar{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:0 16px;height:var(--sumbar-h);
+  display:flex;gap:0;align-items:center;
+  position:fixed;top:var(--topbar-h);left:0;right:0;z-index:190;
+  overflow-x:auto;overflow-y:hidden;
+}
+.summary-bar::-webkit-scrollbar{display:none;}
+.sum-item{display:flex;flex-direction:column;gap:1px;flex-shrink:0;padding:0 12px;}
+.sum-label{font-size:9px;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);font-weight:700;white-space:nowrap;}
+.sum-val{font-size:14px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;}
+.sum-val.accent{color:var(--accent);font-size:16px;}
+.sum-val.success{color:var(--success);}
+.sum-div{width:1px;height:28px;background:var(--border);flex-shrink:0;}
+
+/* ══ LAYOUT ══════════════════════════════════════════ */
+.app-body{
+  position:fixed;
+  top:calc(var(--topbar-h) + var(--sumbar-h));
+  left:0;right:0;
+  bottom:var(--navbar-h);
+  display:flex;overflow:hidden;
+}
+
+/* ══ SIDEBAR (desktop/tablet landscape) ═════════════ */
+.sidebar{
+  width:200px;flex-shrink:0;
+  background:var(--surface);border-right:1px solid var(--border);
+  overflow-y:auto;overflow-x:hidden;
+  display:flex;flex-direction:column;
+}
+.sidebar::-webkit-scrollbar{width:3px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.week-header{
+  font-size:9px;text-transform:uppercase;letter-spacing:.7px;
+  color:var(--accent2);font-weight:700;
+  padding:8px 12px 3px;border-top:1px solid var(--border);margin-top:2px;
+}
+.week-header:first-child{border-top:none;margin-top:0;}
+.day-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:6px 12px;cursor:pointer;transition:background .1s;gap:6px;
+  min-height:44px;
+}
+.day-item:active{background:var(--surface2);}
+.day-item.active{background:rgba(108,143,255,.12);border-right:2px solid var(--accent);}
+.day-label{font-size:13px;font-weight:600;color:var(--text);}
+.day-kpi{font-size:10px;color:var(--success);font-weight:700;font-variant-numeric:tabular-nums;}
+.day-empty{font-size:10px;color:var(--text3);}
+.day-del{
+  font-size:11px;color:var(--danger);cursor:pointer;
+  padding:3px 6px;border-radius:5px;flex-shrink:0;
+  background:rgba(255,92,106,.12);
+}
+
+/* ══ RIGHT PANEL ═════════════════════════════════════ */
+.right-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+
+/* Tabs */
+.tabs{
+  display:flex;gap:2px;padding:10px 16px 0;
+  border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.tab{
+  padding:7px 14px;font-size:13px;font-weight:600;color:var(--text2);
+  border-radius:7px 7px 0 0;cursor:pointer;
+  border:1px solid transparent;border-bottom:none;
+}
+.tab.active{
+  background:var(--surface2);border-color:var(--border);color:var(--text);
+  border-bottom:1px solid var(--surface2);margin-bottom:-1px;
+}
+
+/* Input area */
+.input-area{
+  padding:12px 16px;border-bottom:1px solid var(--border);
+  background:var(--surface2);flex-shrink:0;
+}
+.input-row{display:flex;gap:8px;align-items:flex-end;}
+textarea{
+  flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);
+  border-radius:10px;padding:10px 12px;font-size:13px;
+  font-family:'Cascadia Code','Fira Code',monospace;
+  resize:none;min-height:100px;outline:none;line-height:1.6;
+  -webkit-user-select:text;user-select:text;
+}
+textarea:focus{border-color:var(--accent);}
+textarea::placeholder{color:var(--text3);}
+.input-actions{display:flex;flex-direction:column;gap:7px;flex-shrink:0;}
+.input-hint{font-size:11px;color:var(--text3);margin-top:5px;line-height:1.4;}
+
+/* Alerts */
+.alerts{padding:0 16px;flex-shrink:0;max-height:100px;overflow-y:auto;}
+.alert{margin-top:5px;padding:6px 11px;border-radius:7px;font-size:12px;line-height:1.4;}
+.alert-warn{background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.3);color:var(--warn);}
+.alert-danger{background:rgba(255,92,106,.1);border:1px solid rgba(255,92,106,.25);color:var(--danger);}
+.alert-success{background:rgba(67,201,140,.1);border:1px solid rgba(67,201,140,.25);color:var(--success);}
+
+/* Preview / Report */
+.preview-area,.report-view{flex:1;overflow:auto;padding:12px 16px;}
+.preview-area::-webkit-scrollbar,.report-view::-webkit-scrollbar{width:4px;height:4px;}
+.preview-area::-webkit-scrollbar-thumb,.report-view::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+.section-title{
+  font-size:11px;text-transform:uppercase;letter-spacing:.5px;
+  color:var(--text3);font-weight:700;margin-bottom:8px;margin-top:14px;
+}
+.section-title:first-child{margin-top:0;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{
+  background:var(--surface);color:var(--text2);font-weight:700;font-size:10px;
+  text-transform:uppercase;letter-spacing:.3px;padding:8px 8px;text-align:left;
+  border-bottom:2px solid var(--border);position:sticky;top:0;z-index:2;white-space:nowrap;
+}
+td{padding:7px 8px;border-bottom:1px solid rgba(45,49,71,.6);color:var(--text);}
+tr:active td{background:rgba(255,255,255,.02);}
+td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;}
+td.date-cell{color:var(--accent2);font-weight:700;white-space:nowrap;}
+td.member{color:var(--accent);}
+td.tot-day{color:var(--success);font-weight:700;text-align:right;font-variant-numeric:tabular-nums;}
+td.tot-week{color:var(--warn);font-weight:700;text-align:right;font-variant-numeric:tabular-nums;}
+.raw-kpi{font-size:10px;color:var(--text3);}
+tr.day-first td{background:rgba(108,143,255,.03);}
+tr.week-boundary td{border-top:2px solid rgba(78,205,196,.25);}
+tr.footer-row td{background:var(--surface);font-weight:700;border-top:2px solid var(--border);}
+
+.empty-state{text-align:center;padding:40px 20px;color:var(--text3);}
+.empty-state .icon{font-size:40px;margin-bottom:10px;}
+.empty-state p{font-size:13px;}
+.overwrite-badge{
+  display:inline-flex;align-items:center;
+  background:rgba(245,166,35,.15);color:var(--warn);
+  font-size:10px;font-weight:700;padding:1px 5px;border-radius:4px;margin-left:5px;
+}
+
+/* Spinner */
+.spinner-btn{display:none;align-items:center;gap:6px;}
+.spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ══ BOTTOM NAVBAR (mobile) ══════════════════════════ */
+.bottom-nav{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;
+  height:var(--navbar-h);
+  background:var(--surface);border-top:1px solid var(--border);
+  z-index:200;
+}
+.bottom-nav-inner{
+  display:flex;height:100%;
+}
+.nav-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;cursor:pointer;color:var(--text3);font-size:10px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.4px;border:none;background:none;
+  transition:color .15s;padding:0;
+}
+.nav-btn.active{color:var(--accent);}
+.nav-btn .nav-icon{font-size:20px;line-height:1;}
+
+/* ══ DRAWER OVERLAY (mobile sidebar) ════════════════ */
+.drawer-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:299;
+}
+.drawer-overlay.show{display:block;}
+.drawer{
+  position:fixed;top:0;left:0;bottom:0;width:260px;
+  background:var(--surface);border-right:1px solid var(--border);
+  z-index:300;overflow-y:auto;
+  transform:translateX(-100%);transition:transform .25s ease;
+  padding-top:calc(var(--topbar-h) + var(--sumbar-h));
+}
+.drawer.open{transform:translateX(0);}
+.drawer .week-header,.drawer .day-item{/* same as sidebar */}
+
+/* ══ RESPONSIVE ══════════════════════════════════════ */
+
+/* Tablet portrait (768px) */
+@media(max-width:900px){
+  .sidebar{width:170px;}
+  .btn-label{display:none;}
+  .btn-icon{display:inline;}
+  .btn{padding:8px 10px;}
+}
+
+/* Mobile / small tablet (<=640px) */
+@media(max-width:640px){
+  :root{--topbar-h:52px;--sumbar-h:46px;--navbar-h:60px;}
+
+  body{overflow:hidden;}
+
+  /* Topbar compact */
+  .topbar{padding:0 12px;gap:8px;}
+  .logo{font-size:15px;}
+  .lbl{display:none;}
+  input[type=month]{max-width:130px;font-size:13px;padding:5px 8px;}
+  .btn{padding:7px 9px;font-size:12px;min-height:36px;}
+  .btn-label{display:none;}
+  .btn-icon{display:inline;}
+
+  /* Summary scrollable */
+  .sum-item{padding:0 8px;}
+  .sum-val{font-size:13px;}
+  .sum-val.accent{font-size:15px;}
+
+  /* Layout: single column, sidebar hidden */
+  .app-body{flex-direction:column;}
+  .sidebar{display:none;}
+  .right-panel{width:100%;}
+
+  /* Tabs hidden on mobile (use bottom nav instead) */
+  .tabs{display:none;}
+
+  /* Input area */
+  .input-area{padding:10px 12px;}
+  .input-row{flex-direction:column;gap:8px;}
+  textarea{min-height:90px;font-size:14px;}
+  .input-actions{flex-direction:row;flex-wrap:wrap;gap:6px;}
+  .input-actions .btn{flex:1;justify-content:center;min-width:100px;}
+  .input-hint{font-size:10px;}
+
+  /* Alerts compact */
+  .alerts{padding:0 12px;max-height:80px;}
+  .alert{font-size:11px;padding:5px 10px;}
+
+  /* Preview */
+  .preview-area,.report-view{padding:10px 12px;}
+  th{font-size:9px;padding:7px 6px;}
+  td{padding:6px 6px;font-size:12px;}
+
+  /* Bottom nav visible */
+  .bottom-nav{display:block;}
+
+  /* Drawer */
+  .drawer-overlay{/* kept hidden until open */}
+}
+
+/* iPad (641–900) — keep sidebar but make it narrower */
+@media(min-width:641px) and (max-width:900px){
+  .sidebar{width:160px;}
+  .day-item{padding:5px 10px;min-height:40px;}
+  .input-area{padding:10px 14px;}
+  .input-row{flex-direction:column;gap:8px;}
+  textarea{min-height:90px;}
+  .input-actions{flex-direction:row;gap:6px;}
+  .input-actions .btn{flex:1;justify-content:center;}
+  .preview-area,.report-view{padding:12px 14px;}
+}
 </style>
 </head>
 <body>
 
+<!-- ══ TOPBAR ══════════════════════════════════════════ -->
 <div class="topbar">
   <div class="logo">Báo Số <span>KPI</span></div>
-  <div class="topbar-center">
-    <label class="lbl">Tháng báo cáo</label>
+  <div class="topbar-month">
+    <label class="lbl">Tháng</label>
     <input type="month" id="monthPicker">
   </div>
-  <div class="topbar-right">
-    <button class="btn btn-danger" onclick="clearAll()">🗑 Xóa toàn bộ</button>
-    <button class="btn btn-success" onclick="exportExcel()" id="btnExport" disabled>
-      <span id="btnExportLabel">⬇ Tải Excel</span>
-      <span class="spinner-btn" id="btnExportSpinner"><span class="spinner"></span>Đang tạo...</span>
+  <div class="topbar-actions">
+    <button class="btn btn-danger" onclick="clearAll()" title="Xóa toàn bộ">
+      <span class="btn-icon">🗑</span>
+      <span class="btn-label">🗑 Xóa</span>
+    </button>
+    <button class="btn btn-success" onclick="exportExcel()" id="btnExport" title="Tải Excel">
+      <span id="btnExportLabel"><span class="btn-icon">⬇</span><span class="btn-label"> Tải Excel</span></span>
+      <span class="spinner-btn" id="btnExportSpinner"><span class="spinner"></span><span class="btn-label">Đang tạo...</span></span>
     </button>
   </div>
 </div>
 
+<!-- ══ SUMMARY BAR ═════════════════════════════════════ -->
 <div class="summary-bar">
-  <div class="sum-item"><div class="sum-label">Tổng tháng</div><div class="sum-val accent" id="sumTotal">0</div></div>
+  <div class="sum-item"><div class="sum-label">Tổng tháng</div><div class="sum-val accent" id="sumTotal">106.382</div></div>
   <div class="sum-div"></div>
-  <div class="sum-item"><div class="sum-label">Tuần 1 (1–7)</div><div class="sum-val" id="sumW1">0</div></div>
-  <div class="sum-item"><div class="sum-label">Tuần 2 (8–14)</div><div class="sum-val" id="sumW2">0</div></div>
-  <div class="sum-item"><div class="sum-label">Tuần 3 (15–21)</div><div class="sum-val" id="sumW3">0</div></div>
-  <div class="sum-item"><div class="sum-label">Tuần 4 (22–cuối)</div><div class="sum-val" id="sumW4">0</div></div>
+  <div class="sum-item"><div class="sum-label">Tuần 1</div><div class="sum-val" id="sumW1">0</div></div>
+  <div class="sum-item"><div class="sum-label">Tuần 2</div><div class="sum-val" id="sumW2">0</div></div>
+  <div class="sum-item"><div class="sum-label">Tuần 3</div><div class="sum-val" id="sumW3">106.382</div></div>
+  <div class="sum-item"><div class="sum-label">Tuần 4</div><div class="sum-val" id="sumW4">0</div></div>
   <div class="sum-div"></div>
-  <div class="sum-item"><div class="sum-label">Số ngày đã nhập</div><div class="sum-val success" id="sumDays">0</div></div>
+  <div class="sum-item"><div class="sum-label">Ngày đã nhập</div><div class="sum-val success" id="sumDays">2</div></div>
 </div>
 
-<div class="main">
-  <div class="sidebar" id="sidebar"></div>
+<!-- ══ DRAWER (mobile sidebar) ════════════════════════ -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div id="drawerContent"><div class="week-header">Tuần 1 · 1–7</div><div class="day-item" onclick="selectDay(&#39;2026-06-01&#39;,this)">
+        <div>
+          <div class="day-label">01/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-02&#39;,this)">
+        <div>
+          <div class="day-label">02/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-03&#39;,this)">
+        <div>
+          <div class="day-label">03/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-04&#39;,this)">
+        <div>
+          <div class="day-label">04/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-05&#39;,this)">
+        <div>
+          <div class="day-label">05/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-06&#39;,this)">
+        <div>
+          <div class="day-label">06/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-07&#39;,this)">
+        <div>
+          <div class="day-label">07/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="week-header">Tuần 2 · 8–14</div><div class="day-item" onclick="selectDay(&#39;2026-06-08&#39;,this)">
+        <div>
+          <div class="day-label">08/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-09&#39;,this)">
+        <div>
+          <div class="day-label">09/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-10&#39;,this)">
+        <div>
+          <div class="day-label">10/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-11&#39;,this)">
+        <div>
+          <div class="day-label">11/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-12&#39;,this)">
+        <div>
+          <div class="day-label">12/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-13&#39;,this)">
+        <div>
+          <div class="day-label">13/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-14&#39;,this)">
+        <div>
+          <div class="day-label">14/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="week-header">Tuần 3 · 15–21 · 106.382</div><div class="day-item" onclick="selectDay(&#39;2026-06-15&#39;,this)">
+        <div>
+          <div class="day-label">15/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-16&#39;,this)">
+        <div>
+          <div class="day-label">16/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item has-data" onclick="selectDay(&#39;2026-06-17&#39;,this)">
+        <div>
+          <div class="day-label">17/06</div>
+          <div class="day-kpi">49.000</div>
+        </div>
+        <span class="day-del" onclick="event.stopPropagation();deleteDay(&#39;2026-06-17&#39;)">✕</span>
+      </div><div class="day-item has-data" onclick="selectDay(&#39;2026-06-18&#39;,this)">
+        <div>
+          <div class="day-label">18/06</div>
+          <div class="day-kpi">57.382</div>
+        </div>
+        <span class="day-del" onclick="event.stopPropagation();deleteDay(&#39;2026-06-18&#39;)">✕</span>
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-19&#39;,this)">
+        <div>
+          <div class="day-label">19/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-20&#39;,this)">
+        <div>
+          <div class="day-label">20/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-21&#39;,this)">
+        <div>
+          <div class="day-label">21/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="week-header">Tuần 4 · 22–30</div><div class="day-item" onclick="selectDay(&#39;2026-06-22&#39;,this)">
+        <div>
+          <div class="day-label">22/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-23&#39;,this)">
+        <div>
+          <div class="day-label">23/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-24&#39;,this)">
+        <div>
+          <div class="day-label">24/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-25&#39;,this)">
+        <div>
+          <div class="day-label">25/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-26&#39;,this)">
+        <div>
+          <div class="day-label">26/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-27&#39;,this)">
+        <div>
+          <div class="day-label">27/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-28&#39;,this)">
+        <div>
+          <div class="day-label">28/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-29&#39;,this)">
+        <div>
+          <div class="day-label">29/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-30&#39;,this)">
+        <div>
+          <div class="day-label">30/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div></div>
+</div>
+
+<!-- ══ APP BODY ═══════════════════════════════════════ -->
+<div class="app-body">
+
+  <!-- Sidebar (desktop/tablet) -->
+  <div class="sidebar" id="sidebar"><div class="week-header">Tuần 1 · 1–7</div><div class="day-item" onclick="selectDay(&#39;2026-06-01&#39;,this)">
+        <div>
+          <div class="day-label">01/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-02&#39;,this)">
+        <div>
+          <div class="day-label">02/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-03&#39;,this)">
+        <div>
+          <div class="day-label">03/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-04&#39;,this)">
+        <div>
+          <div class="day-label">04/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-05&#39;,this)">
+        <div>
+          <div class="day-label">05/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-06&#39;,this)">
+        <div>
+          <div class="day-label">06/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-07&#39;,this)">
+        <div>
+          <div class="day-label">07/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="week-header">Tuần 2 · 8–14</div><div class="day-item" onclick="selectDay(&#39;2026-06-08&#39;,this)">
+        <div>
+          <div class="day-label">08/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-09&#39;,this)">
+        <div>
+          <div class="day-label">09/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-10&#39;,this)">
+        <div>
+          <div class="day-label">10/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-11&#39;,this)">
+        <div>
+          <div class="day-label">11/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-12&#39;,this)">
+        <div>
+          <div class="day-label">12/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-13&#39;,this)">
+        <div>
+          <div class="day-label">13/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-14&#39;,this)">
+        <div>
+          <div class="day-label">14/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="week-header">Tuần 3 · 15–21 · 106.382</div><div class="day-item" onclick="selectDay(&#39;2026-06-15&#39;,this)">
+        <div>
+          <div class="day-label">15/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-16&#39;,this)">
+        <div>
+          <div class="day-label">16/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item has-data" onclick="selectDay(&#39;2026-06-17&#39;,this)">
+        <div>
+          <div class="day-label">17/06</div>
+          <div class="day-kpi">49.000</div>
+        </div>
+        <span class="day-del" onclick="event.stopPropagation();deleteDay(&#39;2026-06-17&#39;)">✕</span>
+      </div><div class="day-item has-data" onclick="selectDay(&#39;2026-06-18&#39;,this)">
+        <div>
+          <div class="day-label">18/06</div>
+          <div class="day-kpi">57.382</div>
+        </div>
+        <span class="day-del" onclick="event.stopPropagation();deleteDay(&#39;2026-06-18&#39;)">✕</span>
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-19&#39;,this)">
+        <div>
+          <div class="day-label">19/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-20&#39;,this)">
+        <div>
+          <div class="day-label">20/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-21&#39;,this)">
+        <div>
+          <div class="day-label">21/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="week-header">Tuần 4 · 22–30</div><div class="day-item" onclick="selectDay(&#39;2026-06-22&#39;,this)">
+        <div>
+          <div class="day-label">22/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-23&#39;,this)">
+        <div>
+          <div class="day-label">23/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-24&#39;,this)">
+        <div>
+          <div class="day-label">24/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-25&#39;,this)">
+        <div>
+          <div class="day-label">25/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-26&#39;,this)">
+        <div>
+          <div class="day-label">26/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-27&#39;,this)">
+        <div>
+          <div class="day-label">27/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-28&#39;,this)">
+        <div>
+          <div class="day-label">28/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-29&#39;,this)">
+        <div>
+          <div class="day-label">29/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div><div class="day-item" onclick="selectDay(&#39;2026-06-30&#39;,this)">
+        <div>
+          <div class="day-label">30/06</div>
+          <div class="day-empty">Chưa nhập</div>
+        </div>
+        
+      </div></div>
+
+  <!-- Right panel -->
   <div class="right-panel">
     <div class="tabs">
-      <div class="tab active" id="tabInput" onclick="switchTab('input')">📥 Nhập liệu</div>
-      <div class="tab" id="tabReport" onclick="switchTab('report')">📋 Báo cáo đầy đủ</div>
+      <div class="tab active" id="tabInput" onclick="switchTab(&#39;input&#39;)">📥 Nhập liệu</div>
+      <div class="tab" id="tabReport" onclick="switchTab(&#39;report&#39;)">📋 Báo cáo</div>
     </div>
 
+    <!-- INPUT PANEL -->
     <div id="panelInput" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
       <div class="input-area">
         <div class="input-row">
-          <textarea id="rawInput" placeholder="Paste một hoặc nhiều ngày cùng lúc...&#10;&#10;Ngày 18-5&#10;1. Butterfly Queen (Stephen) 102&#10;2. Anita (stephen) 5792&#10;3. Najiba (Cris) 7649+ 8255&#10;Tổng 57382&#10;&#10;Ngày 19-5&#10;1. Najiba (Cris) 12000"></textarea>
+          <textarea id="rawInput" placeholder="Paste báo số vào đây...
+
+Ngày 18-6
+1. Butterfly Queen (Stephen) 102
+2. Anita (stephen) 5792
+Tổng 5894"></textarea>
           <div class="input-actions">
-            <button class="btn btn-primary" onclick="parseInput()">🔍 Parse dữ liệu</button>
-            <button class="btn btn-success" onclick="addToReport()" id="btnAdd" disabled>✅ Thêm vào báo cáo</button>
-            <button class="btn btn-ghost" onclick="clearInput()">✕ Xóa input</button>
+            <button class="btn btn-primary" onclick="parseInput()">🔍 Parse</button>
+            <button class="btn btn-success" onclick="addToReport()" id="btnAdd" disabled="">✅ Thêm</button>
+            <button class="btn btn-ghost" onclick="clearInput()">✕ Xóa</button>
           </div>
         </div>
-        <div class="input-hint">💡 Có thể paste nhiều ngày cùng lúc. Nhập lại ngày đã có sẽ ghi đè dữ liệu cũ.</div>
+        <div class="input-hint">💡 Paste nhiều ngày cùng lúc. Nhập lại ngày đã có sẽ ghi đè.</div>
       </div>
       <div class="alerts" id="alertsArea"></div>
       <div class="preview-area" id="previewArea">
-        <div class="empty-state"><div class="icon">📋</div><p>Paste báo số và bấm <strong>Parse dữ liệu</strong> để xem preview</p></div>
+        <div class="empty-state">
+          <div class="icon">📋</div>
+          <p>Paste báo số và bấm <strong>Parse</strong></p>
+        </div>
       </div>
     </div>
 
+    <!-- REPORT PANEL -->
     <div id="panelReport" style="display:none;flex:1;overflow:hidden;">
       <div class="report-view" id="reportArea">
         <div class="empty-state"><div class="icon">📊</div><p>Chưa có dữ liệu.</p></div>
@@ -144,7 +745,23 @@
   </div>
 </div>
 
+<!-- ══ BOTTOM NAVBAR (mobile) ════════════════════════ -->
+<div class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <button class="nav-btn active" id="nav-input" onclick="mobileTab(&#39;input&#39;)">
+      <span class="nav-icon">📥</span>Nhập liệu
+    </button>
+    <button class="nav-btn" id="nav-days" onclick="openDrawer()">
+      <span class="nav-icon">📅</span>Ngày
+    </button>
+    <button class="nav-btn" id="nav-report" onclick="mobileTab(&#39;report&#39;)">
+      <span class="nav-icon">📋</span>Báo cáo
+    </button>
+  </div>
+</div>
+
 <script>
+// ── STATE ──────────────────────────────────────────────
 let reportData={}, parsedGroups=[], currentMonth='';
 
 window.onload=()=>{
@@ -154,12 +771,15 @@ window.onload=()=>{
   loadState(); refresh();
 };
 
-function refresh(){currentMonth=document.getElementById('monthPicker').value;renderSidebar();renderSummary();}
+function refresh(){
+  currentMonth=document.getElementById('monthPicker').value;
+  renderSidebar(); renderSummary();
+}
 function getWeek(d){return d<=7?1:d<=14?2:d<=21?3:4;}
 function daysInMonth(ym){const[y,m]=ym.split('-').map(Number);return new Date(y,m,0).getDate();}
 function fmt(n){return Number(n).toLocaleString('vi-VN');}
 
-// ── PARSE ──────────────────────────────────────────────────────
+// ── PARSE ──────────────────────────────────────────────
 function parseInput(){
   const raw=document.getElementById('rawInput').value.trim();
   if(!raw){showSingleAlert('Chưa có nội dung.','warn');return;}
@@ -169,7 +789,6 @@ function parseInput(){
   let curDate=null,curRows=[],curInputTotal=null;
   const flush=()=>{
     if(!curDate) return;
-    // Ngày trống (không có dòng nào) → thêm 1 dòng placeholder x
     if(curRows.length===0){
       const day=parseInt(curDate.split('-')[2]);
       curRows=[{date:curDate,userName:'x',memberName:'x',kpi:0,rawKpi:'0',week:getWeek(day),isEmpty:true}];
@@ -185,7 +804,6 @@ function parseInput(){
       curDate=`${y}-${String(m).padStart(2,'0')}-${String(day).padStart(2,'0')}`;continue;}
     const tm=t.match(/^[Tt][oổ]ng\s+([\d,\.]+)/);
     if(tm){curInputTotal=parseInt(tm[1].replace(/[,\.]/g,''));continue;}
-    // Chấp nhận: "1. Name", "1) Name", "1 Name" (có hoặc không có dấu chấm/ngoặc sau số)
     const dm2=t.match(/^(\d+)[\.)\s]\s*(.+?)\s*\(([^)]+)\)\s*([\d\s\+]+)\s*$/);
     if(dm2){
       if(!curDate){alerts.push({type:'warn',msg:`⚠️ Dòng "${t.substring(0,30)}" không có ngày, bỏ qua.`});continue;}
@@ -198,38 +816,36 @@ function parseInput(){
   if(!parsedGroups.length){showSingleAlert('Không tìm thấy dữ liệu hợp lệ.','danger');return;}
   parsedGroups.forEach(g=>{
     const[,,d]=g.date.split('-');
-    if(g.rows[0]?.isEmpty){
-      alerts.push({type:'warn',msg:`📭 Ngày ${d}: Không có dữ liệu — sẽ ghi 0.`});
-      return;
-    }
+    if(g.rows[0]?.isEmpty){alerts.push({type:'warn',msg:`📭 Ngày ${d}: Không có dữ liệu — ghi 0.`});return;}
     const calc=g.rows.reduce((s,r)=>s+r.kpi,0);
     if(g.inputTotal!==null&&calc!==g.inputTotal)alerts.push({type:'warn',msg:`⚠️ Ngày ${d}: Tổng input ${fmt(g.inputTotal)} ≠ tính được ${fmt(calc)}`});
-    if(reportData[g.date])alerts.push({type:'warn',msg:`🔄 Ngày ${d} đã có dữ liệu — sẽ ghi đè.`});
+    if(reportData[g.date])alerts.push({type:'warn',msg:`🔄 Ngày ${d} đã có — sẽ ghi đè.`});
   });
   const realDays=parsedGroups.filter(g=>!g.rows[0]?.isEmpty).length;
   const totalRows=parsedGroups.reduce((s,g)=>s+(g.rows[0]?.isEmpty?0:g.rows.length),0);
-  alerts.unshift({type:'success',msg:`✅ Đọc được ${parsedGroups.length} ngày (${realDays} có dữ liệu), ${totalRows} dòng.`});
+  alerts.unshift({type:'success',msg:`✅ ${parsedGroups.length} ngày (${realDays} có dữ liệu), ${totalRows} dòng.`});
   renderAlerts(alerts); renderPreview(parsedGroups);
   document.getElementById('btnAdd').disabled=false;
 }
 
-// ── PREVIEW ────────────────────────────────────────────────────
+// ── PREVIEW ────────────────────────────────────────────
 function renderPreview(groups){
-  if(!groups||!groups.length){document.getElementById('previewArea').innerHTML='<div class="empty-state"><div class="icon">🔍</div><p>Không có dữ liệu</p></div>';return;}
+  if(!groups||!groups.length){
+    document.getElementById('previewArea').innerHTML='<div class="empty-state"><div class="icon">🔍</div><p>Không có dữ liệu</p></div>';return;
+  }
   const[,m]=currentMonth.split('-');
   let html='';
   groups.forEach(g=>{
     const isEmpty=g.rows[0]?.isEmpty;
     const dayTotal=g.rows.reduce((s,r)=>s+r.kpi,0),[y,,d]=g.date.split('-'),isOvr=!!reportData[g.date];
     if(isEmpty){
-      html+=`<div class="section-title">Ngày ${d}/${m}/${y} — <span style="color:var(--text3)">Trống (tổng = 0)</span>${isOvr?'<span class="overwrite-badge">🔄 GHI ĐÈ</span>':''}</div>
-      <table><thead><tr><th>Tên User</th><th>Thành viên</th><th style="text-align:right">KPI Ngày</th></tr></thead><tbody>
+      html+=`<div class="section-title">Ngày ${d}/${m}/${y} — <span style="color:var(--text3)">Trống (0)</span>${isOvr?'<span class="overwrite-badge">🔄 GHI ĐÈ</span>':''}</div>
+      <table><thead><tr><th>User</th><th>TV</th><th style="text-align:right">KPI</th></tr></thead><tbody>
       <tr style="color:var(--text3)"><td>x</td><td>x</td><td class="num">0</td></tr>
-      </tbody></table>`;
-      return;
+      </tbody></table>`;return;
     }
     html+=`<div class="section-title">Ngày ${d}/${m}/${y} — ${g.rows.length} dòng — Tổng: <strong>${fmt(dayTotal)}</strong>${isOvr?'<span class="overwrite-badge">🔄 GHI ĐÈ</span>':''}</div>
-    <table><thead><tr><th>Tên User</th><th>Thành viên</th><th style="text-align:right">KPI Ngày</th></tr></thead><tbody>`;
+    <table><thead><tr><th>Tên User</th><th>Thành viên</th><th style="text-align:right">KPI</th></tr></thead><tbody>`;
     g.rows.forEach(r=>{html+=`<tr><td>${r.userName}</td><td class="member">${r.memberName}</td>
       <td class="num">${fmt(r.kpi)}${r.rawKpi.includes('+')?`<br><span class="raw-kpi">${r.rawKpi}</span>`:''}</td></tr>`;});
     html+=`<tr><td colspan="2" style="color:var(--text3);font-size:11px">Tổng ngày</td><td class="tot-day">${fmt(dayTotal)}</td></tr>`;
@@ -238,73 +854,84 @@ function renderPreview(groups){
   document.getElementById('previewArea').innerHTML=html;
 }
 
-// ── ADD TO REPORT ──────────────────────────────────────────────
+// ── ADD TO REPORT ──────────────────────────────────────
 function addToReport(){
   if(!parsedGroups||!parsedGroups.length)return;
   parsedGroups.forEach(g=>{reportData[g.date]=g.rows;});
-  saveState(); parsedGroups=[];
+  saveState();parsedGroups=[];
   document.getElementById('btnAdd').disabled=true;
-  document.getElementById('rawInput').value=''; clearAlerts();
+  document.getElementById('rawInput').value='';clearAlerts();
   document.getElementById('previewArea').innerHTML='<div class="empty-state"><div class="icon">✅</div><p>Đã thêm. Paste tiếp ngày tiếp theo.</p></div>';
   refresh();
   document.getElementById('btnExport').disabled=Object.keys(reportData).length===0;
 }
 
-// ── EXPORT EXCEL (gọi API server) ──────────────────────────────
-async function exportExcel(){
-  if(!Object.keys(reportData).length){alert('Chưa có dữ liệu.');return;}
-  const btnExport=document.getElementById('btnExport');
-  const labelEl=document.getElementById('btnExportLabel');
-  const spinnerEl=document.getElementById('btnExportSpinner');
-  btnExport.disabled=true;
-  labelEl.style.display='none';
-  spinnerEl.style.display='flex';
-  try{
-    const res=await fetch('/api/export',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({month:currentMonth, data:reportData})
-    });
-    if(!res.ok){const e=await res.json();alert('Lỗi: '+e.error);return;}
-    const blob=await res.blob();
-    const[y,m]=currentMonth.split('-');
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download=`Bao_Cao_Thang_${m}_${y}.xlsx`;
-    a.click(); URL.revokeObjectURL(a.href);
-  }catch(e){
-    alert('Không kết nối được server. Vui lòng thử lại.');
-    console.error(e);
-  }finally{
-    btnExport.disabled=false;
-    labelEl.style.display='';
-    spinnerEl.style.display='none';
-  }
-}
-
-// ── SIDEBAR ────────────────────────────────────────────────────
-function renderSidebar(){
-  if(!currentMonth)return;
+// ── SIDEBAR / DRAWER ───────────────────────────────────
+function renderSidebarHTML(){
+  if(!currentMonth)return'';
   const[y,m]=currentMonth.split('-').map(Number),total=daysInMonth(currentMonth);
   const blocks=[[1,7],[8,14],[15,21],[22,total]];let html='';
   blocks.forEach(([from,to],wi)=>{
-    const wt=Object.entries(reportData).filter(([d])=>{const day=parseInt(d.split('-')[2]);return day>=from&&day<=to;}).reduce((s,[,rows])=>s+rows.reduce((ss,r)=>ss+r.kpi,0),0);
+    const wt=Object.entries(reportData)
+      .filter(([d])=>{const day=parseInt(d.split('-')[2]);return day>=from&&day<=to;})
+      .reduce((s,[,rows])=>s+rows.reduce((ss,r)=>ss+r.kpi,0),0);
     html+=`<div class="week-header">Tuần ${wi+1} · ${from}–${to}${wt>0?' · '+fmt(wt):''}</div>`;
     for(let d=from;d<=to;d++){
-      const ds=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`,rows=reportData[ds],has=rows&&rows.length>0,dayKpi=has?rows.reduce((s,r)=>s+r.kpi,0):0;
+      const ds=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const rows=reportData[ds],has=rows&&rows.length>0;
+      const dayKpi=has?rows.reduce((s,r)=>s+r.kpi,0):0;
       html+=`<div class="day-item${has?' has-data':''}" onclick="selectDay('${ds}',this)">
-        <div><div class="day-label">${String(d).padStart(2,'0')}/${String(m).padStart(2,'0')}</div>
-        ${has?`<div class="day-kpi">${fmt(dayKpi)}</div>`:`<div class="day-empty">Chưa nhập</div>`}</div>
+        <div>
+          <div class="day-label">${String(d).padStart(2,'0')}/${String(m).padStart(2,'0')}</div>
+          ${has?`<div class="day-kpi">${fmt(dayKpi)}</div>`:`<div class="day-empty">Chưa nhập</div>`}
+        </div>
         ${has?`<span class="day-del" onclick="event.stopPropagation();deleteDay('${ds}')">✕</span>`:''}
       </div>`;
     }
   });
-  document.getElementById('sidebar').innerHTML=html;
+  return html;
 }
-function selectDay(ds,el){document.querySelectorAll('.day-item').forEach(x=>x.classList.remove('active'));el.classList.add('active');if(reportData[ds]){switchTab('input');renderPreview([{date:ds,rows:reportData[ds],inputTotal:null}]);}}
-function deleteDay(ds){if(!confirm('Xóa dữ liệu ngày này?'))return;delete reportData[ds];saveState();refresh();document.getElementById('btnExport').disabled=Object.keys(reportData).length===0;}
+function renderSidebar(){
+  const html=renderSidebarHTML();
+  document.getElementById('sidebar').innerHTML=html;
+  document.getElementById('drawerContent').innerHTML=html;
+}
+function selectDay(ds,el){
+  document.querySelectorAll('.day-item').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.day-item').forEach(x=>{
+    if(x.getAttribute('onclick')===el.getAttribute('onclick'))x.classList.add('active');
+  });
+  closeDrawer();
+  if(reportData[ds]){
+    mobileTab('input');
+    switchTab('input');
+    renderPreview([{date:ds,rows:reportData[ds],inputTotal:null}]);
+  }
+}
+function deleteDay(ds){
+  if(!confirm('Xóa dữ liệu ngày này?'))return;
+  delete reportData[ds];saveState();refresh();
+  document.getElementById('btnExport').disabled=Object.keys(reportData).length===0;
+}
 
-// ── SUMMARY ────────────────────────────────────────────────────
+// ── DRAWER ─────────────────────────────────────────────
+function openDrawer(){
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('show');
+}
+function closeDrawer(){
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('show');
+}
+
+// ── MOBILE TAB ─────────────────────────────────────────
+function mobileTab(tab){
+  switchTab(tab);
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('nav-'+tab)?.classList.add('active');
+}
+
+// ── SUMMARY ────────────────────────────────────────────
 function renderSummary(){
   const w={1:0,2:0,3:0,4:0};
   Object.entries(reportData).forEach(([d,rows])=>{w[getWeek(parseInt(d.split('-')[2]))]+=rows.reduce((s,r)=>s+r.kpi,0);});
@@ -314,7 +941,7 @@ function renderSummary(){
   document.getElementById('sumDays').textContent=Object.keys(reportData).length;
 }
 
-// ── REPORT VIEW ────────────────────────────────────────────────
+// ── REPORT ─────────────────────────────────────────────
 function renderReport(){
   const dates=Object.keys(reportData).sort();
   if(!dates.length){document.getElementById('reportArea').innerHTML='<div class="empty-state"><div class="icon">📊</div><p>Chưa có dữ liệu.</p></div>';return;}
@@ -324,37 +951,61 @@ function renderReport(){
   const grand=Object.values(w).reduce((s,v)=>s+v,0);
   let prevWeek=0;
   let html=`<div class="section-title">Tháng ${m}/${y} — ${dates.length} ngày</div>
-  <table><thead><tr><th>Ngày</th><th>Tên User</th><th>Thành viên</th>
-    <th style="text-align:right">KPI Ngày</th><th style="text-align:right">KPI Tổng Ngày</th>
-    <th style="text-align:right">KPI Tổng Tuần</th><th>Tuần</th></tr></thead><tbody>`;
+  <table><thead><tr>
+    <th>Ngày</th><th>Tên User</th><th>TV</th>
+    <th style="text-align:right">KPI</th>
+    <th style="text-align:right">Tổng Ngày</th>
+    <th style="text-align:right">Tổng Tuần</th>
+    <th>Tuần</th>
+  </tr></thead><tbody>`;
   dates.forEach(date=>{
     const rows=reportData[date],dayTotal=rows.reduce((s,r)=>s+r.kpi,0),[,,d]=date.split('-'),wk=getWeek(parseInt(d));
     const isWB=wk!==prevWeek,isLast=lastOfWeek[wk]===date;prevWeek=wk;
     rows.forEach((r,i)=>{
       const isLastRow=i===rows.length-1;
       html+=`<tr class="${isWB&&i===0?'week-boundary ':''} ${i===0?'day-first':''}">
-        <td class="date-cell">${i===0?`${d}/${m}/${y}`:''}</td>
+        <td class="date-cell">${i===0?`${d}/${m}`:''}</td>
         <td>${r.userName}</td><td class="member">${r.memberName}</td>
         <td class="num">${fmt(r.kpi)}</td>
         <td class="tot-day">${i===0?fmt(dayTotal):''}</td>
         <td class="tot-week">${isLast&&isLastRow?fmt(w[wk]):''}</td>
-        <td style="color:var(--text3);font-size:12px">${i===0?'Tuần '+wk:''}</td>
+        <td style="color:var(--text3);font-size:11px">${i===0?'T'+wk:''}</td>
       </tr>`;
     });
   });
   html+=`</tbody><tfoot>
-    <tr class="footer-row"><td colspan="5" style="color:var(--text2)">x</td><td class="tot-day" style="font-size:15px">${fmt(grand)}</td><td></td></tr>
-    <tr class="footer-row"><td colspan="5" style="color:var(--text2)">TỔNG KPI ĐỦ SỐ (KPI全部 - 达)</td><td class="tot-day" style="font-size:15px;color:var(--success)">${fmt(grand)}</td><td></td></tr>
+    <tr class="footer-row"><td colspan="4" style="color:var(--text2)">x</td><td class="tot-day" colspan="2" style="font-size:14px">${fmt(grand)}</td><td></td></tr>
+    <tr class="footer-row"><td colspan="4" style="color:var(--text2);font-size:11px">TỔNG KPI ĐỦ SỐ</td><td class="tot-day" colspan="2" style="font-size:14px;color:var(--success)">${fmt(grand)}</td><td></td></tr>
   </tfoot></table>`;
   document.getElementById('reportArea').innerHTML=html;
 }
 
-// ── ALERTS ────────────────────────────────────────────────────
+// ── EXPORT ─────────────────────────────────────────────
+async function exportExcel(){
+  if(!Object.keys(reportData).length){alert('Chưa có dữ liệu.');return;}
+  const btnExport=document.getElementById('btnExport');
+  const labelEl=document.getElementById('btnExportLabel');
+  const spinnerEl=document.getElementById('btnExportSpinner');
+  btnExport.disabled=true;labelEl.style.display='none';spinnerEl.style.display='flex';
+  try{
+    const res=await fetch('/api/export',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({month:currentMonth,data:reportData})});
+    if(!res.ok){const e=await res.json();alert('Lỗi: '+e.error);return;}
+    const blob=await res.blob();
+    const[y,m]=currentMonth.split('-');
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=`Bao_Cao_Thang_${m}_${y}.xlsx`;
+    a.click();URL.revokeObjectURL(a.href);
+  }catch(e){alert('Không kết nối được server.');console.error(e);}
+  finally{btnExport.disabled=false;labelEl.style.display='';spinnerEl.style.display='none';}
+}
+
+// ── ALERTS ─────────────────────────────────────────────
 function clearAlerts(){document.getElementById('alertsArea').innerHTML='';}
 function showSingleAlert(msg,type){document.getElementById('alertsArea').innerHTML=`<div class="alert alert-${type}">${msg}</div>`;}
 function renderAlerts(alerts){clearAlerts();document.getElementById('alertsArea').innerHTML=alerts.map(a=>`<div class="alert alert-${a.type}">${a.msg}</div>`).join('');}
 
-// ── TABS ──────────────────────────────────────────────────────
+// ── TABS ───────────────────────────────────────────────
 function switchTab(tab){
   document.getElementById('panelInput').style.display=tab==='input'?'flex':'none';
   document.getElementById('panelReport').style.display=tab==='report'?'flex':'none';
@@ -363,11 +1014,16 @@ function switchTab(tab){
   if(tab==='report')renderReport();
 }
 
-// ── PERSIST ──────────────────────────────────────────────────
+// ── PERSIST ────────────────────────────────────────────
 function saveState(){currentMonth=document.getElementById('monthPicker').value;try{localStorage.setItem('kpi_v2_'+currentMonth,JSON.stringify(reportData));}catch(e){}}
 function loadState(){currentMonth=document.getElementById('monthPicker').value;try{const s=localStorage.getItem('kpi_v2_'+currentMonth);reportData=s?JSON.parse(s):{};}catch(e){reportData={};}document.getElementById('btnExport').disabled=Object.keys(reportData).length===0;}
-function clearInput(){document.getElementById('rawInput').value='';clearAlerts();parsedGroups=[];document.getElementById('btnAdd').disabled=true;document.getElementById('previewArea').innerHTML='<div class="empty-state"><div class="icon">📋</div><p>Paste báo số và bấm <strong>Parse dữ liệu</strong></p></div>';}
+function clearInput(){
+  document.getElementById('rawInput').value='';clearAlerts();parsedGroups=[];
+  document.getElementById('btnAdd').disabled=true;
+  document.getElementById('previewArea').innerHTML='<div class="empty-state"><div class="icon">📋</div><p>Paste báo số và bấm <strong>Parse</strong></p></div>';
+}
 function clearAll(){if(!confirm('Xóa toàn bộ dữ liệu tháng này?'))return;reportData={};saveState();refresh();document.getElementById('btnExport').disabled=true;clearInput();}
 </script>
-</body>
-</html>
+
+
+</body></html>
