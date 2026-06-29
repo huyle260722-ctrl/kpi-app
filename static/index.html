@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Báo Số KPI</title>
+<style>
+  :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#222636;--border:#2d3147;--accent:#6c8fff;--accent2:#4ecdc4;--success:#43c98c;--warn:#f5a623;--danger:#ff5c6a;--text:#e8eaf0;--text2:#8b90a7;--text3:#555c7a;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;min-height:100vh;}
+  .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;}
+  .logo{font-size:18px;font-weight:700;color:var(--accent);letter-spacing:-.5px;flex-shrink:0;}.logo span{color:var(--accent2);}
+  .topbar-center{flex:1;display:flex;align-items:center;gap:12px;}
+  .lbl{color:var(--text2);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+  input[type=month]{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 12px;border-radius:7px;font-size:14px;outline:none;cursor:pointer;}
+  input[type=month]:focus{border-color:var(--accent);}
+  .topbar-right{display:flex;gap:8px;align-items:center;}
+  .btn{padding:8px 16px;border-radius:7px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px;white-space:nowrap;}
+  .btn-primary{background:var(--accent);color:#fff;}.btn-primary:hover{background:#5577ee;}
+  .btn-success{background:var(--success);color:#fff;}.btn-success:hover{background:#38b07a;}
+  .btn-danger{background:transparent;border:1px solid var(--danger);color:var(--danger);}.btn-danger:hover{background:var(--danger);color:#fff;}
+  .btn-ghost{background:var(--surface2);border:1px solid var(--border);color:var(--text2);}.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+  .btn:disabled{opacity:.4;cursor:not-allowed;}
+  .spinner-btn{display:none;align-items:center;gap:8px;}
+  .spinner{width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .summary-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;gap:24px;align-items:center;flex-wrap:wrap;}
+  .sum-item{display:flex;flex-direction:column;gap:2px;}
+  .sum-label{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);font-weight:700;}
+  .sum-val{font-size:15px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;}
+  .sum-val.accent{color:var(--accent);}.sum-val.success{color:var(--success);}
+  .sum-div{width:1px;height:32px;background:var(--border);}
+  .main{display:grid;grid-template-columns:220px 1fr;height:calc(100vh - 97px);overflow:hidden;}
+  .sidebar{background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:12px 0;}
+  .sidebar::-webkit-scrollbar{width:4px;}.sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+  .week-header{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--accent2);font-weight:700;padding:10px 16px 4px;border-top:1px solid var(--border);margin-top:4px;}
+  .week-header:first-child{border-top:none;margin-top:0;}
+  .day-item{display:flex;align-items:center;justify-content:space-between;padding:7px 16px;cursor:pointer;transition:background .1s;gap:8px;}
+  .day-item:hover{background:var(--surface2);}.day-item.active{background:rgba(108,143,255,.12);border-right:2px solid var(--accent);}
+  .day-label{font-size:13px;font-weight:600;color:var(--text);}
+  .day-kpi{font-size:11px;color:var(--success);font-weight:700;font-variant-numeric:tabular-nums;}
+  .day-empty{font-size:11px;color:var(--text3);}
+  .day-del{font-size:10px;color:var(--danger);cursor:pointer;padding:2px 5px;border-radius:4px;opacity:0;transition:opacity .1s;background:rgba(255,92,106,.1);}
+  .day-item:hover .day-del{opacity:1;}
+  .right-panel{display:flex;flex-direction:column;overflow:hidden;}
+  .tabs{display:flex;gap:2px;padding:12px 20px 0;border-bottom:1px solid var(--border);flex-shrink:0;}
+  .tab{padding:8px 16px;font-size:13px;font-weight:600;color:var(--text2);border-radius:7px 7px 0 0;cursor:pointer;border:1px solid transparent;border-bottom:none;}
+  .tab.active{background:var(--surface2);border-color:var(--border);color:var(--text);border-bottom:1px solid var(--surface2);margin-bottom:-1px;}
+  .tab:hover:not(.active){color:var(--text);}
+  .input-area{padding:16px 20px;border-bottom:1px solid var(--border);background:var(--surface2);flex-shrink:0;}
+  .input-row{display:flex;gap:10px;align-items:flex-end;}
+  textarea{flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:10px 14px;font-size:13px;font-family:'Cascadia Code','Fira Code',monospace;resize:vertical;min-height:120px;outline:none;line-height:1.6;}
+  textarea:focus{border-color:var(--accent);}textarea::placeholder{color:var(--text3);}
+  .input-actions{display:flex;flex-direction:column;gap:8px;flex-shrink:0;}
+  .input-hint{font-size:11px;color:var(--text3);margin-top:6px;}
+  .alerts{padding:0 20px;flex-shrink:0;max-height:120px;overflow-y:auto;}
+  .alert{margin-top:6px;padding:7px 12px;border-radius:7px;font-size:12px;line-height:1.5;}
+  .alert-warn{background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.3);color:var(--warn);}
+  .alert-danger{background:rgba(255,92,106,.1);border:1px solid rgba(255,92,106,.25);color:var(--danger);}
+  .alert-success{background:rgba(67,201,140,.1);border:1px solid rgba(67,201,140,.25);color:var(--success);}
+  .preview-area,.report-view{flex:1;overflow:auto;padding:16px 20px;}
+  .preview-area::-webkit-scrollbar,.report-view::-webkit-scrollbar{width:5px;height:5px;}
+  .preview-area::-webkit-scrollbar-thumb,.report-view::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+  .section-title{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);font-weight:700;margin-bottom:10px;margin-top:16px;}
+  .section-title:first-child{margin-top:0;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{background:var(--surface);color:var(--text2);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.3px;padding:9px 10px;text-align:left;border-bottom:2px solid var(--border);position:sticky;top:0;z-index:2;white-space:nowrap;}
+  td{padding:7px 10px;border-bottom:1px solid rgba(45,49,71,.6);color:var(--text);}
+  tr:hover td{background:rgba(255,255,255,.02);}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;}
+  td.date-cell{color:var(--accent2);font-weight:700;white-space:nowrap;}
+  td.member{color:var(--accent);}
+  td.tot-day{color:var(--success);font-weight:700;text-align:right;font-variant-numeric:tabular-nums;}
+  td.tot-week{color:var(--warn);font-weight:700;text-align:right;font-variant-numeric:tabular-nums;}
+  .raw-kpi{font-size:11px;color:var(--text3);}
+  tr.day-first td{background:rgba(108,143,255,.03);}
+  tr.week-boundary td{border-top:2px solid rgba(78,205,196,.25);}
+  tr.footer-row td{background:var(--surface);font-weight:700;border-top:2px solid var(--border);}
+  .empty-state{text-align:center;padding:60px 20px;color:var(--text3);}
+  .empty-state .icon{font-size:48px;margin-bottom:12px;}
+  .empty-state p{font-size:14px;}
+  .overwrite-badge{display:inline-flex;align-items:center;background:rgba(245,166,35,.15);color:var(--warn);font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;margin-left:6px;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">Báo Số <span>KPI</span></div>
+  <div class="topbar-center">
+    <label class="lbl">Tháng báo cáo</label>
+    <input type="month" id="monthPicker">
+  </div>
+  <div class="topbar-right">
+    <button class="btn btn-danger" onclick="clearAll()">🗑 Xóa toàn bộ</button>
+    <button class="btn btn-success" onclick="exportExcel()" id="btnExport" disabled>
+      <span id="btnExportLabel">⬇ Tải Excel</span>
+      <span class="spinner-btn" id="btnExportSpinner"><span class="spinner"></span>Đang tạo...</span>
+    </button>
+  </div>
+</div>
+
+<div class="summary-bar">
+  <div class="sum-item"><div class="sum-label">Tổng tháng</div><div class="sum-val accent" id="sumTotal">0</div></div>
+  <div class="sum-div"></div>
+  <div class="sum-item"><div class="sum-label">Tuần 1 (1–7)</div><div class="sum-val" id="sumW1">0</div></div>
+  <div class="sum-item"><div class="sum-label">Tuần 2 (8–14)</div><div class="sum-val" id="sumW2">0</div></div>
+  <div class="sum-item"><div class="sum-label">Tuần 3 (15–21)</div><div class="sum-val" id="sumW3">0</div></div>
+  <div class="sum-item"><div class="sum-label">Tuần 4 (22–cuối)</div><div class="sum-val" id="sumW4">0</div></div>
+  <div class="sum-div"></div>
+  <div class="sum-item"><div class="sum-label">Số ngày đã nhập</div><div class="sum-val success" id="sumDays">0</div></div>
+</div>
+
+<div class="main">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="right-panel">
+    <div class="tabs">
+      <div class="tab active" id="tabInput" onclick="switchTab('input')">📥 Nhập liệu</div>
+      <div class="tab" id="tabReport" onclick="switchTab('report')">📋 Báo cáo đầy đủ</div>
+    </div>
+
+    <div id="panelInput" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
+      <div class="input-area">
+        <div class="input-row">
+          <textarea id="rawInput" placeholder="Paste một hoặc nhiều ngày cùng lúc...&#10;&#10;Ngày 18-5&#10;1. Butterfly Queen (Stephen) 102&#10;2. Anita (stephen) 5792&#10;3. Najiba (Cris) 7649+ 8255&#10;Tổng 57382&#10;&#10;Ngày 19-5&#10;1. Najiba (Cris) 12000"></textarea>
+          <div class="input-actions">
+            <button class="btn btn-primary" onclick="parseInput()">🔍 Parse dữ liệu</button>
+            <button class="btn btn-success" onclick="addToReport()" id="btnAdd" disabled>✅ Thêm vào báo cáo</button>
+            <button class="btn btn-ghost" onclick="clearInput()">✕ Xóa input</button>
+          </div>
+        </div>
+        <div class="input-hint">💡 Có thể paste nhiều ngày cùng lúc. Nhập lại ngày đã có sẽ ghi đè dữ liệu cũ.</div>
+      </div>
+      <div class="alerts" id="alertsArea"></div>
+      <div class="preview-area" id="previewArea">
+        <div class="empty-state"><div class="icon">📋</div><p>Paste báo số và bấm <strong>Parse dữ liệu</strong> để xem preview</p></div>
+      </div>
+    </div>
+
+    <div id="panelReport" style="display:none;flex:1;overflow:hidden;">
+      <div class="report-view" id="reportArea">
+        <div class="empty-state"><div class="icon">📊</div><p>Chưa có dữ liệu.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let reportData={}, parsedGroups=[], currentMonth='';
+
+window.onload=()=>{
+  const now=new Date();
+  document.getElementById('monthPicker').value=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  document.getElementById('monthPicker').addEventListener('change',()=>{loadState();refresh();});
+  loadState(); refresh();
+};
+
+function refresh(){currentMonth=document.getElementById('monthPicker').value;renderSidebar();renderSummary();}
+function getWeek(d){return d<=7?1:d<=14?2:d<=21?3:4;}
+function daysInMonth(ym){const[y,m]=ym.split('-').map(Number);return new Date(y,m,0).getDate();}
+function fmt(n){return Number(n).toLocaleString('vi-VN');}
+
+// ── PARSE ──────────────────────────────────────────────────────
+function parseInput(){
+  const raw=document.getElementById('rawInput').value.trim();
+  if(!raw){showSingleAlert('Chưa có nội dung.','warn');return;}
+  clearAlerts();
+  const[y,m]=currentMonth.split('-').map(Number);
+  const alerts=[]; parsedGroups=[];
+  let curDate=null,curRows=[],curInputTotal=null;
+  const flush=()=>{if(curDate&&curRows.length>0)parsedGroups.push({date:curDate,rows:curRows,inputTotal:curInputTotal});curRows=[];curInputTotal=null;};
+  for(const line of raw.split('\n')){
+    const t=line.trim();if(!t)continue;
+    const dm=t.match(/^[Nn]g[àa]y\s+(\d{1,2})[-\/](\d{1,2})(?:[-\/]\d{2,4})?/);
+    if(dm){flush();const day=parseInt(dm[1]),mon=parseInt(dm[2]);
+      if(mon!==m)alerts.push({type:'warn',msg:`⚠️ Ngày ${day}-${mon} thuộc tháng ${String(mon).padStart(2,'0')} nhưng tháng báo cáo là ${String(m).padStart(2,'0')}/${y}.`});
+      curDate=`${y}-${String(m).padStart(2,'0')}-${String(day).padStart(2,'0')}`;continue;}
+    const tm=t.match(/^[Tt][oổ]ng\s+([\d,\.]+)/);
+    if(tm){curInputTotal=parseInt(tm[1].replace(/[,\.]/g,''));continue;}
+    const dm2=t.match(/^(\d+)[\.\)]\s*(.+?)\s*\(([^)]+)\)\s*([\d\s\+]+)\s*$/);
+    if(dm2){
+      if(!curDate){alerts.push({type:'warn',msg:`⚠️ Dòng "${t.substring(0,30)}" không có ngày, bỏ qua.`});continue;}
+      const userName=dm2[2].trim(),memberName=dm2[3].trim(),rawKpi=dm2[4].trim();
+      const kpi=rawKpi.split(/\s*\+\s*/).reduce((s,v)=>s+(parseInt(v)||0),0);
+      curRows.push({date:curDate,userName,memberName,kpi,rawKpi,week:getWeek(parseInt(curDate.split('-')[2]))});continue;}
+    if(/^\d+[\.\)]\s/.test(t))alerts.push({type:'danger',msg:`❌ Không đọc được: ${t}`});
+  }
+  flush();
+  if(!parsedGroups.length){showSingleAlert('Không tìm thấy dữ liệu hợp lệ.','danger');return;}
+  parsedGroups.forEach(g=>{
+    const calc=g.rows.reduce((s,r)=>s+r.kpi,0),[,,d]=g.date.split('-');
+    if(g.inputTotal!==null&&calc!==g.inputTotal)alerts.push({type:'warn',msg:`⚠️ Ngày ${d}: Tổng input ${fmt(g.inputTotal)} ≠ tính được ${fmt(calc)}`});
+    if(reportData[g.date])alerts.push({type:'warn',msg:`🔄 Ngày ${d} đã có dữ liệu — sẽ ghi đè.`});
+  });
+  alerts.unshift({type:'success',msg:`✅ Đọc được ${parsedGroups.length} ngày, ${parsedGroups.reduce((s,g)=>s+g.rows.length,0)} dòng.`});
+  renderAlerts(alerts); renderPreview(parsedGroups);
+  document.getElementById('btnAdd').disabled=false;
+}
+
+// ── PREVIEW ────────────────────────────────────────────────────
+function renderPreview(groups){
+  if(!groups||!groups.length){document.getElementById('previewArea').innerHTML='<div class="empty-state"><div class="icon">🔍</div><p>Không có dữ liệu</p></div>';return;}
+  const[,m]=currentMonth.split('-');
+  let html='';
+  groups.forEach(g=>{
+    const dayTotal=g.rows.reduce((s,r)=>s+r.kpi,0),[y,,d]=g.date.split('-'),isOvr=!!reportData[g.date];
+    html+=`<div class="section-title">Ngày ${d}/${m}/${y} — ${g.rows.length} dòng — Tổng: <strong>${fmt(dayTotal)}</strong>${isOvr?'<span class="overwrite-badge">🔄 GHI ĐÈ</span>':''}</div>
+    <table><thead><tr><th>Tên User</th><th>Thành viên</th><th style="text-align:right">KPI Ngày</th></tr></thead><tbody>`;
+    g.rows.forEach(r=>{html+=`<tr><td>${r.userName}</td><td class="member">${r.memberName}</td>
+      <td class="num">${fmt(r.kpi)}${r.rawKpi.includes('+')?`<br><span class="raw-kpi">${r.rawKpi}</span>`:''}</td></tr>`;});
+    html+=`<tr><td colspan="2" style="color:var(--text3);font-size:11px">Tổng ngày</td><td class="tot-day">${fmt(dayTotal)}</td></tr>`;
+    html+='</tbody></table>';
+  });
+  document.getElementById('previewArea').innerHTML=html;
+}
+
+// ── ADD TO REPORT ──────────────────────────────────────────────
+function addToReport(){
+  if(!parsedGroups||!parsedGroups.length)return;
+  parsedGroups.forEach(g=>{reportData[g.date]=g.rows;});
+  saveState(); parsedGroups=[];
+  document.getElementById('btnAdd').disabled=true;
+  document.getElementById('rawInput').value=''; clearAlerts();
+  document.getElementById('previewArea').innerHTML='<div class="empty-state"><div class="icon">✅</div><p>Đã thêm. Paste tiếp ngày tiếp theo.</p></div>';
+  refresh();
+  document.getElementById('btnExport').disabled=Object.keys(reportData).length===0;
+}
+
+// ── EXPORT EXCEL (gọi API server) ──────────────────────────────
+async function exportExcel(){
+  if(!Object.keys(reportData).length){alert('Chưa có dữ liệu.');return;}
+  const btnExport=document.getElementById('btnExport');
+  const labelEl=document.getElementById('btnExportLabel');
+  const spinnerEl=document.getElementById('btnExportSpinner');
+  btnExport.disabled=true;
+  labelEl.style.display='none';
+  spinnerEl.style.display='flex';
+  try{
+    const res=await fetch('/api/export',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({month:currentMonth, data:reportData})
+    });
+    if(!res.ok){const e=await res.json();alert('Lỗi: '+e.error);return;}
+    const blob=await res.blob();
+    const[y,m]=currentMonth.split('-');
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=`Bao_Cao_Thang_${m}_${y}.xlsx`;
+    a.click(); URL.revokeObjectURL(a.href);
+  }catch(e){
+    alert('Không kết nối được server. Vui lòng thử lại.');
+    console.error(e);
+  }finally{
+    btnExport.disabled=false;
+    labelEl.style.display='';
+    spinnerEl.style.display='none';
+  }
+}
+
+// ── SIDEBAR ────────────────────────────────────────────────────
+function renderSidebar(){
+  if(!currentMonth)return;
+  const[y,m]=currentMonth.split('-').map(Number),total=daysInMonth(currentMonth);
+  const blocks=[[1,7],[8,14],[15,21],[22,total]];let html='';
+  blocks.forEach(([from,to],wi)=>{
+    const wt=Object.entries(reportData).filter(([d])=>{const day=parseInt(d.split('-')[2]);return day>=from&&day<=to;}).reduce((s,[,rows])=>s+rows.reduce((ss,r)=>ss+r.kpi,0),0);
+    html+=`<div class="week-header">Tuần ${wi+1} · ${from}–${to}${wt>0?' · '+fmt(wt):''}</div>`;
+    for(let d=from;d<=to;d++){
+      const ds=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`,rows=reportData[ds],has=rows&&rows.length>0,dayKpi=has?rows.reduce((s,r)=>s+r.kpi,0):0;
+      html+=`<div class="day-item${has?' has-data':''}" onclick="selectDay('${ds}',this)">
+        <div><div class="day-label">${String(d).padStart(2,'0')}/${String(m).padStart(2,'0')}</div>
+        ${has?`<div class="day-kpi">${fmt(dayKpi)}</div>`:`<div class="day-empty">Chưa nhập</div>`}</div>
+        ${has?`<span class="day-del" onclick="event.stopPropagation();deleteDay('${ds}')">✕</span>`:''}
+      </div>`;
+    }
+  });
+  document.getElementById('sidebar').innerHTML=html;
+}
+function selectDay(ds,el){document.querySelectorAll('.day-item').forEach(x=>x.classList.remove('active'));el.classList.add('active');if(reportData[ds]){switchTab('input');renderPreview([{date:ds,rows:reportData[ds],inputTotal:null}]);}}
+function deleteDay(ds){if(!confirm('Xóa dữ liệu ngày này?'))return;delete reportData[ds];saveState();refresh();document.getElementById('btnExport').disabled=Object.keys(reportData).length===0;}
+
+// ── SUMMARY ────────────────────────────────────────────────────
+function renderSummary(){
+  const w={1:0,2:0,3:0,4:0};
+  Object.entries(reportData).forEach(([d,rows])=>{w[getWeek(parseInt(d.split('-')[2]))]+=rows.reduce((s,r)=>s+r.kpi,0);});
+  const total=Object.values(w).reduce((s,v)=>s+v,0);
+  document.getElementById('sumTotal').textContent=fmt(total);
+  ['1','2','3','4'].forEach(i=>document.getElementById('sumW'+i).textContent=fmt(w[i]));
+  document.getElementById('sumDays').textContent=Object.keys(reportData).length;
+}
+
+// ── REPORT VIEW ────────────────────────────────────────────────
+function renderReport(){
+  const dates=Object.keys(reportData).sort();
+  if(!dates.length){document.getElementById('reportArea').innerHTML='<div class="empty-state"><div class="icon">📊</div><p>Chưa có dữ liệu.</p></div>';return;}
+  const[y,m]=currentMonth.split('-');
+  const w={1:0,2:0,3:0,4:0},lastOfWeek={};
+  dates.forEach(d=>{const wk=getWeek(parseInt(d.split('-')[2]));w[wk]+=reportData[d].reduce((s,r)=>s+r.kpi,0);lastOfWeek[wk]=d;});
+  const grand=Object.values(w).reduce((s,v)=>s+v,0);
+  let prevWeek=0;
+  let html=`<div class="section-title">Tháng ${m}/${y} — ${dates.length} ngày</div>
+  <table><thead><tr><th>Ngày</th><th>Tên User</th><th>Thành viên</th>
+    <th style="text-align:right">KPI Ngày</th><th style="text-align:right">KPI Tổng Ngày</th>
+    <th style="text-align:right">KPI Tổng Tuần</th><th>Tuần</th></tr></thead><tbody>`;
+  dates.forEach(date=>{
+    const rows=reportData[date],dayTotal=rows.reduce((s,r)=>s+r.kpi,0),[,,d]=date.split('-'),wk=getWeek(parseInt(d));
+    const isWB=wk!==prevWeek,isLast=lastOfWeek[wk]===date;prevWeek=wk;
+    rows.forEach((r,i)=>{
+      const isLastRow=i===rows.length-1;
+      html+=`<tr class="${isWB&&i===0?'week-boundary ':''} ${i===0?'day-first':''}">
+        <td class="date-cell">${i===0?`${d}/${m}/${y}`:''}</td>
+        <td>${r.userName}</td><td class="member">${r.memberName}</td>
+        <td class="num">${fmt(r.kpi)}</td>
+        <td class="tot-day">${i===0?fmt(dayTotal):''}</td>
+        <td class="tot-week">${isLast&&isLastRow?fmt(w[wk]):''}</td>
+        <td style="color:var(--text3);font-size:12px">${i===0?'Tuần '+wk:''}</td>
+      </tr>`;
+    });
+  });
+  html+=`</tbody><tfoot>
+    <tr class="footer-row"><td colspan="5" style="color:var(--text2)">x</td><td class="tot-day" style="font-size:15px">${fmt(grand)}</td><td></td></tr>
+    <tr class="footer-row"><td colspan="5" style="color:var(--text2)">TỔNG KPI ĐỦ SỐ (KPI全部 - 达)</td><td class="tot-day" style="font-size:15px;color:var(--success)">${fmt(grand)}</td><td></td></tr>
+  </tfoot></table>`;
+  document.getElementById('reportArea').innerHTML=html;
+}
+
+// ── ALERTS ────────────────────────────────────────────────────
+function clearAlerts(){document.getElementById('alertsArea').innerHTML='';}
+function showSingleAlert(msg,type){document.getElementById('alertsArea').innerHTML=`<div class="alert alert-${type}">${msg}</div>`;}
+function renderAlerts(alerts){clearAlerts();document.getElementById('alertsArea').innerHTML=alerts.map(a=>`<div class="alert alert-${a.type}">${a.msg}</div>`).join('');}
+
+// ── TABS ──────────────────────────────────────────────────────
+function switchTab(tab){
+  document.getElementById('panelInput').style.display=tab==='input'?'flex':'none';
+  document.getElementById('panelReport').style.display=tab==='report'?'flex':'none';
+  document.getElementById('tabInput').className='tab'+(tab==='input'?' active':'');
+  document.getElementById('tabReport').className='tab'+(tab==='report'?' active':'');
+  if(tab==='report')renderReport();
+}
+
+// ── PERSIST ──────────────────────────────────────────────────
+function saveState(){currentMonth=document.getElementById('monthPicker').value;try{localStorage.setItem('kpi_v2_'+currentMonth,JSON.stringify(reportData));}catch(e){}}
+function loadState(){currentMonth=document.getElementById('monthPicker').value;try{const s=localStorage.getItem('kpi_v2_'+currentMonth);reportData=s?JSON.parse(s):{};}catch(e){reportData={};}document.getElementById('btnExport').disabled=Object.keys(reportData).length===0;}
+function clearInput(){document.getElementById('rawInput').value='';clearAlerts();parsedGroups=[];document.getElementById('btnAdd').disabled=true;document.getElementById('previewArea').innerHTML='<div class="empty-state"><div class="icon">📋</div><p>Paste báo số và bấm <strong>Parse dữ liệu</strong></p></div>';}
+function clearAll(){if(!confirm('Xóa toàn bộ dữ liệu tháng này?'))return;reportData={};saveState();refresh();document.getElementById('btnExport').disabled=true;clearInput();}
+</script>
+</body>
+</html>
